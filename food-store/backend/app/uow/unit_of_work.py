@@ -1,0 +1,23 @@
+from sqlmodel import Session
+from app.database import engine
+
+
+class UnitOfWork:
+    def __init__(self):
+        self.session: Session = Session(engine)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type:
+            self.session.rollback()
+        else:
+            self.session.commit()
+        self.session.close()
+
+    def commit(self):
+        self.session.commit()
+
+    def rollback(self):
+        self.session.rollback()
